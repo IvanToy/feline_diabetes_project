@@ -4,11 +4,16 @@ const isCreated = localStorage.getItem("isCreated")
   ? JSON.parse(localStorage.getItem("isCreated"))
   : false;
 
+const toUpdate = localStorage.getItem("toUpdate")
+  ? JSON.parse(localStorage.getItem("toUpdate"))
+  : false;
+
 const petSlice = createSlice({
   name: "pet",
   initialState: {
     petsInfo: null,
     isCreated,
+    toUpdate,
   },
 
   reducers: {
@@ -30,9 +35,14 @@ const petSlice = createSlice({
       };
     },
 
-    updateProfile(state, action) {},
+    update(state, action) {
+      state.toUpdate = action.payload.message;
+    },
 
-    deleteProfile(state, action) {},
+    deleteProfile(state, action) {
+      state.petsInfo = action.payload.petsInfo;
+      state.isCreated = action.payload.isCreated;
+    },
   },
 });
 

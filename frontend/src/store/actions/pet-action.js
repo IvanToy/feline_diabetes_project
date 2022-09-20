@@ -133,3 +133,93 @@ export const getPetsProfile = (path) => {
     }
   };
 };
+
+export const toUpdate = () => {
+  return (dispatch) => {
+    dispatch(petActions.update({ message: true }));
+    localStorage.setItem("toUpdate", JSON.stringify(true));
+  };
+};
+
+export const updatedPetsProfile = (updatedInfo) => {
+  return async (dispatch) => {
+    dispatch(uiActions.request());
+
+    const updateProfile = async () => {
+      const token = JSON.parse(localStorage.getItem("accessToken"));
+      const response = await axiosJWT.patch(
+        "http://localhost:4000/api/pet/updateProfile",
+        updatedInfo,
+        {
+          headers: {
+            "Content-type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status !== 200) {
+        throw new Error("Something went wrong, please try again.");
+      }
+
+      const { data } = response;
+      return data;
+    };
+
+    try {
+      const message = await updateProfile();
+
+      if (message) {
+        dispatch(uiActions.success());
+        dispatch(petActions.update({ message: false }));
+        localStorage.removeItem("toUpdate");
+      }
+    } catch (error) {
+      dispatch(uiActions.failure({ error: error.message }));
+    }
+  };
+};
+
+export const deletePetsProfile = () => {
+  return async (dispatch) => {
+    dispatch(uiActions.request());
+
+    const deleteProfile = async () => {
+      const token = JSON.parse(localStorage.getItem("accessToken"));
+
+      const response = await axiosJWT.delete(
+        "http://localhost:4000/api/pet/deleteProfile",
+        {
+          headers: {
+            "Content-type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status !== 200) {
+        throw new Error("Something went wrong, please try again.");
+      }
+
+      const { data } = response;
+      return data;
+    };
+
+    try {
+      const message = await deleteProfile();
+
+      if (message) {
+        dispatch(uiActions.success());
+        dispatch(
+          petActions.deleteProfile({
+            petsInfo: null,
+            isCreated: false,
+          })
+        );
+        localStorage.removeItem("isCreated");
+      }
+    } catch (error) {
+      dispatch(uiActions.failure({ message: error.message }));
+    }
+  };
+};

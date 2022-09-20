@@ -28,13 +28,13 @@
   margin: 0.5rem;
 }
 
-.generalItem {
+.ulItem {
   color: #ffffff;
   font-size: 1.4rem;
   margin: 0.5rem;
 }
 
-.generalItemSpan {
+.itemSpan {
   text-transform: uppercase;
 }
 

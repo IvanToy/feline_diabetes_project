@@ -63,6 +63,38 @@ const getPetsProfile = asyncHandler(async (req, res) => {
   }
 });
 
-const updatePetsProfile = asyncHandler(async (req, res) => {});
+const updatePetsProfile = asyncHandler(async (req, res) => {
+  const isUpdated = await Pet.updateOne(
+    { userId: req.user._id },
+    { $set: req.body }
+  );
 
-module.exports = { createPetsProfile, getPetsProfile, updatePetsProfile };
+  if (isUpdated) {
+    res.status(200).json({
+      message: "profile has been updated",
+    });
+  } else {
+    res.status(500);
+    throw new Error("Profile couldn't be update");
+  }
+});
+
+const deletePetsProfile = asyncHandler(async (req, res) => {
+  const isDeleted = await Pet.deleteOne({ userId: req.user._id });
+
+  if (isDeleted) {
+    res.status(200).json({
+      message: "profile has been deleted",
+    });
+  } else {
+    res.status(410);
+    throw new Error("Profile couldn't be found");
+  }
+});
+
+module.exports = {
+  createPetsProfile,
+  getPetsProfile,
+  updatePetsProfile,
+  deletePetsProfile,
+};
