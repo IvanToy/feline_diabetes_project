@@ -16,7 +16,7 @@ const PetsProfile = () => {
 
   let content;
 
-  if (loading) {
+  if (loading && !petsInfo) {
     content = <Loader />;
   } else if (!loading && petsInfo) {
     content = (

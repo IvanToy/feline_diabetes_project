@@ -46,7 +46,7 @@ export const createPetsProfile = (petsInfo) => {
 
     const createProfile = async () => {
       const token = JSON.parse(localStorage.getItem("accessToken"));
-      console.log(token, "profile");
+
       const response = await axiosJWT.post(
         "http://localhost:4000/api/pet/createProfile",
         petsInfo,

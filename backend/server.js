@@ -8,6 +8,7 @@ const connectDB = require("./config/db.js");
 
 const userRoutes = require("./routes/userRoutes.js");
 const petRoutes = require("./routes/petRoutes.js");
+const curveRoutes = require("./routes/curveRoutes.js");
 const refreshToken = require("./routes/refreshTokenRoute.js");
 
 dotenv.config();
@@ -30,6 +31,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/user", userRoutes);
 app.use("/api/pet", petRoutes);
+app.use("/api/curve", curveRoutes);
 app.use("/api/refresh", refreshToken);
 
 const PORT = process.env.PORT || 4000;

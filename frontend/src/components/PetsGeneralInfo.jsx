@@ -56,7 +56,7 @@ const PetsGeneralInfo = ({ pet }) => {
               {pet?.dosingDate}
             </li>
             <li className={styles.ulItem}>
-              <span className={styles.itemSpan}>currentInsulin: </span>
+              <span className={styles.itemSpan}>current Insulin: </span>
               {pet?.currentInsulin}
             </li>
             <li className={styles.ulItem}>
