@@ -1,4 +1,5 @@
 const asyncHandler = require("express-async-handler");
+const bcrypt = require("bcryptjs");
 
 const User = require("../models/userModel.js");
 const Token = require("../models/tokenModel.js");
@@ -78,7 +79,6 @@ const loginUser = asyncHandler(async (req, res) => {
 
 const logoutUser = asyncHandler(async (req, res) => {
   const { accessToken } = req.body;
-  console.log(req.body);
 
   if (accessToken) {
     const deleteToken = await Token.deleteOne({ accessToken: accessToken });
@@ -91,4 +91,37 @@ const logoutUser = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { registerUser, loginUser, logoutUser };
+const getUser = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id).select("-password");
+
+  if (user) {
+    res.status(200).json({
+      name: user.name,
+      email: user.email,
+    });
+  } else {
+    throw new Error("User could not be found");
+  }
+});
+
+const getUserPassword = asyncHandler(async (req, res) => {
+  const { password } = req.body;
+
+  const user = await User.findById(req.user._id);
+
+  if (user && (await user.matchPassword(password))) {
+    res.status(200).json({
+      password,
+    });
+  } else {
+    throw new Error("Passwords do not match");
+  }
+});
+
+module.exports = {
+  registerUser,
+  loginUser,
+  logoutUser,
+  getUser,
+  getUserPassword,
+};

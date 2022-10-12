@@ -1,0 +1,93 @@
+.container {
+  padding: 2rem;
+  margin: 2rem auto;
+  width: 70%;
+  background-color: #007dd6;
+  text-align: center;
+  border-radius: 5px;
+}
+
+.title {
+  color: #ffffff;
+  text-transform: uppercase;
+  font-size: 1.8rem;
+  margin: 1rem;
+}
+
+.ul {
+  display: flex;
+  justify-content: space-evenly;
+  padding: 1rem;
+  margin: 1rem;
+}
+
+.li {
+  color: #ffffff;
+  font-size: 1.4rem;
+  margin: 0.5rem;
+}
+
+.liSpan {
+  text-transform: uppercase;
+}
+
+.buttonsContainer {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.updateButton {
+  align-self: center;
+  padding: 1rem;
+  margin: 1rem;
+  border: none;
+  border-radius: 5px;
+  color: #6082b6;
+  font-size: 1.5rem;
+  font-weight: 900;
+  cursor: pointer;
+  background-color: #fcf5e5;
+}
+
+.updateButton:hover {
+  background-color: #ffffff;
+}
+
+.deleteButton {
+  align-self: center;
+  padding: 1rem;
+  border: none;
+  border-radius: 5px;
+  color: #6082b6;
+  font-size: 1.5rem;
+  font-weight: 900;
+  cursor: pointer;
+  background-color: #fcf5e5;
+}
+
+.deleteButton:hover {
+  background-color: #e30b5c;
+  color: #ffffff;
+}
+.li:nth-child(3) {
+  position: relative;
+  cursor: pointer;
+}
+
+.passwordTip {
+  color: #ffffff;
+  width: 15rem;
+  visibility: hidden;
+  font-size: 1.2rem;
+  bottom: 2.5rem;
+  position: absolute;
+  text-align: center;
+  background-color: #000000;
+  border-radius: 5px;
+  padding: 0.5rem;
+  line-height: 1.6rem;
+}
+
+.li:nth-child(3):hover .passwordTip {
+  visibility: visible;
+}

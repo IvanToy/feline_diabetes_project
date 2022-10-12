@@ -4,9 +4,9 @@ import {
   createPetsProfile,
   updatedPetsProfile,
   getPetsProfile,
-} from "../store/actions/pet-action";
-import Loader from "./Loader";
-import styles from "../css/PetsForm.module.css";
+} from "../../store/actions/pet-action";
+import Loader from "../UI/Loader";
+import styles from "../../css/PetsForm.module.css";
 
 const currentDate = new Date().toISOString().split("T")[0];
 

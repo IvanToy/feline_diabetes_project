@@ -5,14 +5,13 @@ import { uiActions } from "../slices/ui-slice";
 
 const refreshToken = async () => {
   try {
-    const refreshToken = localStorage.getItem("refreshToken");
-    const response = await axios.post(
-      "http://localhost:4000/api/refresh",
-      refreshToken
-    );
+    const refreshToken = JSON.parse(localStorage.getItem("refreshToken"));
+    const response = await axios.post("http://localhost:4000/api/refresh", {
+      token: refreshToken,
+    });
     const { data } = response;
     localStorage.setItem("accessToken", JSON.stringify(data.accessToken));
-    localStorage.setItem("refreshToke", JSON.stringify(data.refreshToken));
+    localStorage.setItem("refreshToken", JSON.stringify(data.refreshToken));
     return data;
   } catch (error) {
     console.error(error);
@@ -171,6 +170,70 @@ export const logoutUser = () => {
     } catch (error) {
       dispatch(uiActions.failure({ error: error.message }));
     }
+  };
+};
+
+export const getUser = () => {
+  return async (dispatch) => {
+    const get = async () => {
+      const token = JSON.parse(localStorage.getItem("accessToken"));
+
+      const response = await axiosJWT.get("http://localhost:4000/api/user", {
+        headers: { authorization: `Bearer ${token}` },
+      });
+
+      if (response.status !== 200) {
+        throw new Error("something went wrong");
+      }
+
+      const { data } = response;
+
+      return data;
+    };
+
+    try {
+      const data = await get();
+      dispatch(userActions.getUser({ name: data.name, email: data.email }));
+    } catch (error) {}
+  };
+};
+
+export const getUsersPassword = (password) => {
+  return async (dispatch) => {
+    const getPassword = async () => {
+      const token = JSON.parse(localStorage.getItem("accessToken"));
+
+      const response = await axiosJWT.post(
+        "http://localhost:4000/api/user/password",
+        { password },
+        {
+          headers: {
+            "Content-type": "Application/json",
+            authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status !== 200) {
+        throw new Error("something went wrong");
+      }
+
+      const { data } = response;
+
+      return data;
+    };
+
+    try {
+      const data = await getPassword();
+      dispatch(userActions.getPassword({ password: data.password }));
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+};
+
+export const deletePassword = () => {
+  return (dispatch) => {
+    dispatch(userActions.deletePassword({ delete: true }));
   };
 };
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   LineChart,
   XAxis,
@@ -9,10 +9,10 @@ import {
   CartesianGrid,
 } from "recharts";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurve } from "../store/actions/curve-action";
-import Loader from "./Loader";
+import { getCurve } from "../../store/actions/curve-action";
+import Loader from "../UI/Loader";
 
-import styles from "../css/Chart.module.css";
+import styles from "../../css/Chart.module.css";
 
 const Chart = () => {
   const { loadingChart, loading } = useSelector((state) => state.ui);

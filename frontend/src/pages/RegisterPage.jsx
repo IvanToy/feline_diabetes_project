@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Loader from "../components/Loader";
+import Loader from "../components/UI/Loader";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "../store/actions/user-action";
@@ -61,7 +61,6 @@ const RegisterPage = () => {
         <Loader />
       ) : (
         <>
-          <h1 className={styles.title}>Feline Diabetes Tracker</h1>
           {!loading && error && <span>{error}</span>}
           <div className={styles.container}>
             <form onSubmit={submitHandler} className={styles.registerFrom}>

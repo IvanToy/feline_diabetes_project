@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import PetsGeneralInfo from "./PetsGeneralInfo";
-import PetsChart from "./PetsChart";
-import Loader from "./Loader";
+import PetsChart from "../chartComponents/PetsChart";
+import Loader from "../UI/Loader";
 import { useDispatch, useSelector } from "react-redux";
-import { getPetsProfile } from "../store/actions/pet-action";
+import { getPetsProfile } from "../../store/actions/pet-action";
 
 const PetsProfile = () => {
   const { loading, error } = useSelector((state) => state.ui);

@@ -6,12 +6,12 @@ import { uiActions } from "../slices/ui-slice";
 const refreshToken = async () => {
   try {
     const refreshToken = JSON.parse(localStorage.getItem("refreshToken"));
-    refreshToken, "from refresh token function";
+
     const response = await axios.post("http://localhost:4000/api/refresh", {
       token: refreshToken,
     });
     const { data } = response;
-    data, "from refresh token";
+
     localStorage.setItem("accessToken", JSON.stringify(data.accessToken));
     localStorage.setItem("refreshToken", JSON.stringify(data.refreshToken));
     return data;

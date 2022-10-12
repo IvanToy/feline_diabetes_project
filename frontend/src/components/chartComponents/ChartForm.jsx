@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { addCurve } from "../store/actions/curve-action";
+import { addCurve } from "../../store/actions/curve-action";
 import { useDispatch } from "react-redux";
-import styles from "../css/PetsChart.module.css";
+import styles from "../../css/PetsChart.module.css";
 
 const currentDate = new Date().toISOString().split("T")[0];
 

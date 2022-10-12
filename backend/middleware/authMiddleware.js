@@ -7,7 +7,6 @@ dotenv.config();
 
 const protect = AsyncHandler(async (req, res, next) => {
   let token;
-
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")

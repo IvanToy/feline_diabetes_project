@@ -16,7 +16,7 @@ const userSlice = createSlice({
     accessToken,
     refreshToken,
     isRegistered,
-    userInfo: [],
+    userInfo: null,
   },
 
   reducers: {
@@ -35,6 +35,27 @@ const userSlice = createSlice({
       state.accessToken = action.payload.accessToken;
       state.refreshToken = action.payload.refreshToken;
       state.isRegistered = action.payload.isRegistered;
+    },
+    getUser(state, action) {
+      const user = {
+        name: "",
+        email: "",
+      };
+
+      user.name = action.payload.name;
+      user.email = action.payload.email;
+
+      state.userInfo = user;
+    },
+    getPassword(state, action) {
+      state.userInfo["password"] = action.payload.password;
+    },
+    deletePassword(state, action) {
+      const toDelete = action.payload.delete;
+
+      if (toDelete) {
+        delete state.userInfo.password;
+      }
     },
     updateUser(state, action) {},
     deleteUser(state, action) {},

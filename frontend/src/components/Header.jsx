@@ -5,7 +5,7 @@ import { logoutUser } from "../store/actions/user-action";
 
 import styles from "../css/Header.module.css";
 
-const Header = () => {
+const Header = ({ navigationHandler }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isRegistered = useSelector((state) => state.user.isRegistered);
@@ -19,6 +19,7 @@ const Header = () => {
   const clickHandler = () => {
     dispatch(logoutUser());
   };
+
   return (
     <header className={styles.header}>
       <h3 className={styles.title}>
@@ -26,25 +27,27 @@ const Header = () => {
           Feline Diabetes Tracker
         </Link>
       </h3>
-      <div className={styles.menu}>
-        <ul className={styles.list}>
-          <li className={styles.listItem}>
-            <Link className={styles.listItemLink} to="/profile:id">
-              Your Profile
-            </Link>
-          </li>
-          <li className={styles.listItem}>
-            <Link className={styles.listItemLink} to="/chat">
-              Chat
-            </Link>
-          </li>
-          <li className={styles.listItem}>
-            <button className={styles.logout} onClick={clickHandler}>
-              Log Out
-            </button>
-          </li>
-        </ul>
-      </div>
+      {isRegistered && (
+        <div className={styles.menu}>
+          <ul className={styles.list}>
+            <li className={styles.listItem}>
+              <Link className={styles.listItemLink} to="/profile">
+                Your Profile
+              </Link>
+            </li>
+            <li className={styles.listItem}>
+              <Link className={styles.listItemLink} to="/chat">
+                Chat
+              </Link>
+            </li>
+            <li className={styles.listItem}>
+              <button className={styles.logout} onClick={clickHandler}>
+                Log Out
+              </button>
+            </li>
+          </ul>
+        </div>
+      )}
     </header>
   );
 };

@@ -1,6 +1,6 @@
 import React from "react";
-import { toUpdate, deletePetsProfile } from "../store/actions/pet-action";
-import styles from "../css/PetsProfile.module.css";
+import { toUpdate, deletePetsProfile } from "../../store/actions/pet-action";
+import styles from "../../css/PetsProfile.module.css";
 import { useDispatch } from "react-redux";
 
 const PetsGeneralInfo = ({ pet }) => {
