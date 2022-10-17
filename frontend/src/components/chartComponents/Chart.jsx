@@ -55,7 +55,7 @@ const Chart = () => {
   if (!loadingChart && !data) {
     return (
       <section className={styles.container}>
-        {!loading && !data ? (
+        {loading && !data ? (
           <Loader />
         ) : (
           <h4 className={styles.mainTitle}>

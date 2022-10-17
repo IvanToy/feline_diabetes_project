@@ -5,10 +5,10 @@ import { logoutUser } from "../store/actions/user-action";
 
 import styles from "../css/Header.module.css";
 
-const Header = ({ navigationHandler }) => {
+const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const isRegistered = useSelector((state) => state.user.isRegistered);
+  const { isRegistered } = useSelector((state) => state.user.userData);
 
   useEffect(() => {
     if (isRegistered === false) {

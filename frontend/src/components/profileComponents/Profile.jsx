@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { getUser, deletePassword } from "../../store/actions/user-action.js";
+import {
+  getUser,
+  deletePassword,
+  deleteUser,
+} from "../../store/actions/user-action.js";
 import PasswordShowModal from "../UI/PasswordShowModal";
 
 import styles from "../../css/Profile.module.css";
@@ -43,6 +48,10 @@ const Profile = () => {
     }
   };
 
+  const deleteProfileHandler = () => {
+    dispatch(deleteUser());
+  };
+
   return (
     <>
       {showPassword && (
@@ -71,8 +80,15 @@ const Profile = () => {
           </li>
         </ul>
         <div className={styles.buttonsContainer}>
-          <button className={styles.updateButton}>Update Profile</button>
-          <button className={styles.deleteButton}>Delete Profile</button>
+          <Link to="/update-profile">
+            <button className={styles.updateButton}>Update Profile</button>
+          </Link>
+          <button
+            className={styles.deleteButton}
+            onClick={deleteProfileHandler}
+          >
+            Delete Profile
+          </button>
         </div>
       </section>
     </>

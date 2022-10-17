@@ -91,6 +91,10 @@ const getCurve = asyncHandler(async (req, res) => {
         curveLength: curves.length,
       });
     }
+  } else {
+    res.json({
+      data: null,
+    });
   }
 });
 

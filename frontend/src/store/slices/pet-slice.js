@@ -1,8 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const isCreated = localStorage.getItem("isCreated")
-  ? JSON.parse(localStorage.getItem("isCreated"))
-  : false;
+const user = JSON.parse(localStorage.getItem("user"));
+let isCreated;
+if (user?.isPetsProfileCreated) {
+  isCreated = user.isPetsProfileCreated;
+} else {
+  isCreated = false;
+}
 
 const toUpdate = localStorage.getItem("toUpdate")
   ? JSON.parse(localStorage.getItem("toUpdate"))

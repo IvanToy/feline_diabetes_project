@@ -2,6 +2,8 @@ const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcryptjs");
 
 const User = require("../models/userModel.js");
+const Pet = require("../models/petModel.js");
+const Curve = require("../models/curveModel.js");
 const Token = require("../models/tokenModel.js");
 
 const generateAccessToken = require("../utils/generateAccessToken.js");
@@ -27,6 +29,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
   if (user) {
     res.status(200).json({
+      id: user._id,
       accessToken,
       refreshToken,
       isRegistered: true,
@@ -57,9 +60,11 @@ const loginUser = asyncHandler(async (req, res) => {
 
   if (user && (await user.matchPassword(password))) {
     res.status(200).json({
+      id: user._id,
       accessToken,
       refreshToken,
       isRegistered: true,
+      petsProfile: user.petsProfile,
     });
 
     const tokens = await Token.create({
@@ -104,6 +109,40 @@ const getUser = asyncHandler(async (req, res) => {
   }
 });
 
+const updateUser = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+    user.password = req.body.password || user.password;
+
+    await user.save();
+
+    res.status(200).json({
+      message: "profile has been deleted",
+    });
+  } else {
+    res.status(410);
+    throw new Error("Profile couldn't be found");
+  }
+});
+
+const deleteUserProfile = asyncHandler(async (req, res) => {
+  const user = await User.deleteOne({ _id: req.user._id });
+  const pet = await Pet.deleteOne({ userId: req.user._id });
+  const token = await Token.deleteOne({ userId: req.user._id });
+  const curve = await Curve.deleteOne({ userId: req.user._id });
+
+  if (user && pet && token && curve) {
+    res.status(200).json({
+      message: "Profile has been deleted",
+    });
+  } else {
+    console.log("Wrong");
+  }
+});
+
 const getUserPassword = asyncHandler(async (req, res) => {
   const { password } = req.body;
 
@@ -124,4 +163,6 @@ module.exports = {
   logoutUser,
   getUser,
   getUserPassword,
+  updateUser,
+  deleteUserProfile,
 };

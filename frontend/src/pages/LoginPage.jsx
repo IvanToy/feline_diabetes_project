@@ -8,7 +8,7 @@ import styles from "../css/LoginForm.module.css";
 
 const LoginPage = () => {
   const { loading, error } = useSelector((state) => state.ui);
-  const isRegistered = useSelector((state) => state.user.isRegistered);
+  const { isRegistered, id } = useSelector((state) => state.user.userData);
   const [enteredUserInfo, setEnteredUserInfo] = useState({
     email: "",
     password: "",

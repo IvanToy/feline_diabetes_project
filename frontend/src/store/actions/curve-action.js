@@ -5,15 +5,19 @@ import { uiActions } from "../slices/ui-slice";
 
 const refreshToken = async () => {
   try {
-    const refreshToken = JSON.parse(localStorage.getItem("refreshToken"));
-    refreshToken, "from refresh token function";
+    const { refreshToken } = JSON.parse(localStorage.getItem("user"));
+
     const response = await axios.post("http://localhost:4000/api/refresh", {
       token: refreshToken,
     });
     const { data } = response;
-    data, "from refresh token";
-    localStorage.setItem("accessToken", JSON.stringify(data.accessToken));
-    localStorage.setItem("refreshToken", JSON.stringify(data.refreshToken));
+
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    user.accessToken = data.accessToken;
+    user.refreshToken = data.refreshToken;
+
+    localStorage.setItem("user", JSON.stringify(user));
     return data;
   } catch (error) {
     console.error(error);
@@ -25,7 +29,7 @@ const axiosJWT = axios.create();
 axiosJWT.interceptors.request.use(
   async (config) => {
     const currentDate = new Date();
-    const accessToken = JSON.parse(localStorage.getItem("accessToken"));
+    const { accessToken } = JSON.parse(localStorage.getItem("user"));
     const decodedToken = jwt_decode(accessToken);
 
     if (decodedToken.exp * 1000 < currentDate.getTime()) {
@@ -44,7 +48,7 @@ export const addCurve = (glucoseInfo) => {
   return async (dispatch) => {
     dispatch(uiActions.requestChart());
     const add = async () => {
-      const token = JSON.parse(localStorage.getItem("accessToken"));
+      const { accessToken: token } = JSON.parse(localStorage.getItem("user"));
 
       const response = await axiosJWT.post(
         "http://localhost:4000/api/curve",
@@ -80,7 +84,7 @@ export const addCurve = (glucoseInfo) => {
 export const getCurve = (id) => {
   return async (dispatch) => {
     const get = async () => {
-      const token = JSON.parse(localStorage.getItem("accessToken"));
+      const { accessToken: token } = JSON.parse(localStorage.getItem("user"));
 
       const response = await axiosJWT.get(
         `http://localhost:4000/api/curve/${id}`,

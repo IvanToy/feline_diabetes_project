@@ -16,7 +16,7 @@ import styles from "../css/RegisterFrom.module.css";
 
 const RegisterPage = () => {
   const { loading, error } = useSelector((state) => state.ui);
-  const isRegistered = useSelector((state) => state.user.isRegistered);
+  const { isRegistered, id } = useSelector((state) => state.user.userData);
   const [enteredUserInfo, setEnteredUserInfo] = useState({
     name: "",
     email: "",
@@ -30,7 +30,7 @@ const RegisterPage = () => {
     if (isRegistered) {
       navigate("/", { replace: true });
     }
-  }, [isRegistered, navigate]);
+  }, [isRegistered]);
 
   const submitHandler = (event) => {
     event.preventDefault();

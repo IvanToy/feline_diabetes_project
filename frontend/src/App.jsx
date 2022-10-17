@@ -8,6 +8,7 @@ import LoginPage from "./pages/LoginPage";
 import PageNotFound from "./pages/PageNotFound";
 import ChatPage from "./pages/ChatPage";
 import Header from "./components/Header";
+import UpdateProfileForm from "./components/profileComponents/UpdateProfileForm";
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
         <Route path="/" element={<HomePage />}>
           <Route path="" element={<MainPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/update-profile" element={<UpdateProfileForm />} />
           <Route path="/chat" element={<ChatPage />} />
         </Route>
         <Route path="/register" element={<RegisterPage />} />

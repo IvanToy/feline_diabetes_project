@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
-import Header from "../components/Header";
 import PetsForm from "../components/petsComponents/PetsForm";
 import PetsProfile from "../components/petsComponents/PetsProfile";
 

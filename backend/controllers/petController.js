@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 
 const Pet = require("../models/petModel.js");
+const User = require("../models/userModel.js");
 
 const createPetsProfile = asyncHandler(async (req, res) => {
   const {
@@ -15,7 +16,6 @@ const createPetsProfile = asyncHandler(async (req, res) => {
     meter,
   } = req.body;
 
-  console.log(req.body);
   const pet = Pet.create({
     userId: req.user._id,
     name,
@@ -28,6 +28,12 @@ const createPetsProfile = asyncHandler(async (req, res) => {
     currentInsulin,
     meter,
   });
+
+  const user = await User.findById(req.user._id);
+
+  user.petsProfile = true;
+
+  await user.save();
 
   if (pet) {
     res.status(200).json({
@@ -81,6 +87,11 @@ const updatePetsProfile = asyncHandler(async (req, res) => {
 
 const deletePetsProfile = asyncHandler(async (req, res) => {
   const isDeleted = await Pet.deleteOne({ userId: req.user._id });
+  const user = await User.findById(req.user._id);
+
+  user.petsProfile = false;
+
+  await user.save();
 
   if (isDeleted) {
     res.status(200).json({

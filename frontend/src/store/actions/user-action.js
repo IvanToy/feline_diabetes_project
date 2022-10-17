@@ -1,17 +1,23 @@
 import axios from "axios";
 import jwt_decode from "jwt-decode";
 import { userActions } from "../slices/user-slice";
+import { petActions } from "../slices/pet-slice";
 import { uiActions } from "../slices/ui-slice";
 
 const refreshToken = async () => {
   try {
-    const refreshToken = JSON.parse(localStorage.getItem("refreshToken"));
+    const { refreshToken } = JSON.parse(localStorage.getItem("user"));
     const response = await axios.post("http://localhost:4000/api/refresh", {
       token: refreshToken,
     });
     const { data } = response;
-    localStorage.setItem("accessToken", JSON.stringify(data.accessToken));
-    localStorage.setItem("refreshToken", JSON.stringify(data.refreshToken));
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    user.accessToken = data.accessToken;
+    user.refreshToken = data.refreshToken;
+
+    localStorage.setItem("user", JSON.stringify(user));
+
     return data;
   } catch (error) {
     console.error(error);
@@ -23,7 +29,7 @@ const axiosJWT = axios.create();
 axiosJWT.interceptors.request.use(
   async (config) => {
     const currentDate = new Date();
-    const accessToken = JSON.parse(localStorage.getItem("accessToken"));
+    const { accessToken } = JSON.parse(localStorage.getItem("user"));
     const decodedToken = jwt_decode(accessToken);
     if (decodedToken.exp * 1000 < currentDate.getTime()) {
       const data = await refreshToken();
@@ -57,27 +63,26 @@ export const registerUser = (userInfo) => {
 
     try {
       const userData = await register();
+
       dispatch(
         userActions.registerUser({
           accessToken: userData.accessToken,
           refreshToken: userData.refreshToken,
           isRegistered: userData.isRegistered,
+          isPetsProfileCreated: false,
         })
       );
 
       dispatch(uiActions.success());
 
-      localStorage.setItem("accessToken", JSON.stringify(userData.accessToken));
+      const user = {
+        accessToken: userData.accessToken,
+        refreshToken: userData.refreshToken,
+        isRegistered: userData.isRegistered,
+        isPetsProfileCreated: false,
+      };
 
-      localStorage.setItem(
-        "refreshToken",
-        JSON.stringify(userData.refreshToken)
-      );
-
-      localStorage.setItem(
-        "isRegistered",
-        JSON.stringify(userData.isRegistered)
-      );
+      localStorage.setItem("user", JSON.stringify(user));
     } catch (error) {
       dispatch(uiActions.failure({ error: error.message }));
     }
@@ -111,22 +116,22 @@ export const loginUser = (userInfo) => {
           accessToken: userData.accessToken,
           refreshToken: userData.refreshToken,
           isRegistered: userData.isRegistered,
+          isPetsProfileCreated: userData.petsProfile,
         })
       );
 
+      dispatch(petActions.createProfile({ isCreated: userData.petsProfile }));
+
+      const user = {
+        accessToken: userData.accessToken,
+        refreshToken: userData.refreshToken,
+        isRegistered: userData.isRegistered,
+        isPetsProfileCreated: userData.petsProfile,
+      };
+
+      localStorage.setItem("user", JSON.stringify(user));
+
       dispatch(uiActions.success());
-
-      localStorage.setItem("accessToken", JSON.stringify(userData.accessToken));
-
-      localStorage.setItem(
-        "refreshToken",
-        JSON.stringify(userData.refreshToken)
-      );
-
-      localStorage.setItem(
-        "isRegistered",
-        JSON.stringify(userData.isRegistered)
-      );
     } catch (error) {
       dispatch(uiActions.failure({ error: error.message }));
     }
@@ -137,7 +142,7 @@ export const logoutUser = () => {
   return async (dispatch) => {
     dispatch(uiActions.request());
 
-    const accessToken = JSON.parse(localStorage.getItem("accessToken"));
+    const { accessToken } = JSON.parse(localStorage.getItem("user"));
 
     const logout = async () => {
       const response = await axios.post(
@@ -157,16 +162,21 @@ export const logoutUser = () => {
       if (data.message.includes("out")) {
         dispatch(
           userActions.logoutUser({
+            id: null,
             accessToken: null,
             refreshToken: null,
             isRegistered: false,
           })
         );
+        dispatch(
+          petActions.deleteProfile({
+            petsInfo: null,
+          })
+        );
         dispatch(uiActions.success());
       }
 
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
     } catch (error) {
       dispatch(uiActions.failure({ error: error.message }));
     }
@@ -176,7 +186,7 @@ export const logoutUser = () => {
 export const getUser = () => {
   return async (dispatch) => {
     const get = async () => {
-      const token = JSON.parse(localStorage.getItem("accessToken"));
+      const { accessToken: token } = JSON.parse(localStorage.getItem("user"));
 
       const response = await axiosJWT.get("http://localhost:4000/api/user", {
         headers: { authorization: `Bearer ${token}` },
@@ -200,8 +210,8 @@ export const getUser = () => {
 
 export const getUsersPassword = (password) => {
   return async (dispatch) => {
-    const getPassword = async () => {
-      const token = JSON.parse(localStorage.getItem("accessToken"));
+    const fetchPassword = async () => {
+      const { accessToken: token } = JSON.parse(localStorage.getItem("user"));
 
       const response = await axiosJWT.post(
         "http://localhost:4000/api/user/password",
@@ -223,7 +233,7 @@ export const getUsersPassword = (password) => {
     };
 
     try {
-      const data = await getPassword();
+      const data = await fetchPassword();
       dispatch(userActions.getPassword({ password: data.password }));
     } catch (error) {
       console.error(error.message);
@@ -237,6 +247,88 @@ export const deletePassword = () => {
   };
 };
 
-export const updateUser = () => {};
+export const updateUser = (updatedUserInfo) => {
+  return async (dispatch) => {
+    const update = async () => {
+      const { accessToken: token } = JSON.parse(localStorage.getItem("user"));
+      const response = await axiosJWT.patch(
+        "http://localhost:4000/api/user/update",
+        updatedUserInfo,
+        {
+          headers: {
+            "Content-type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-export const deleteUser = () => {};
+      if (response.status !== 200) {
+        throw new Error("Something went wrong, please try again.");
+      }
+
+      const { data } = response;
+      return data;
+    };
+
+    try {
+      const message = await update();
+      if (message) {
+        dispatch(userActions.updateUser({ updated: true }));
+      }
+    } catch (error) {
+      dispatch(uiActions.failure({ error: error.message }));
+    }
+  };
+};
+
+export const updater = () => {
+  return (dispatch) => {
+    dispatch(userActions.updateUser({ update: false }));
+  };
+};
+
+export const deleteUser = () => {
+  return async (dispatch) => {
+    const deleteUser = async () => {
+      const { accessToken: token } = JSON.parse(localStorage.getItem("user"));
+      const response = await axiosJWT.delete(
+        "http://localhost:4000/api/user/delete",
+        {
+          headers: {
+            "Content-type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status !== 200) {
+        throw new Error("Something went wrong, please try again.");
+      }
+
+      const { data } = response;
+      return data;
+    };
+
+    try {
+      const message = await deleteUser();
+
+      if (message) {
+        dispatch(
+          userActions.deleteUser({
+            userInfo: null,
+            userData: {
+              accessToken: null,
+              refreshToken: null,
+              isRegistered: false,
+              isPetsProfileCreated: false,
+            },
+          })
+        );
+
+        localStorage.removeItem("user");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+};
