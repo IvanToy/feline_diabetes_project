@@ -1,28 +1,28 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const user = JSON.parse(localStorage.getItem("user"));
-let isCreated;
-if (user?.isPetsProfileCreated) {
-  isCreated = user.isPetsProfileCreated;
-} else {
-  isCreated = false;
-}
+let petsProfileExists = false;
 
-const toUpdate = localStorage.getItem("toUpdate")
-  ? JSON.parse(localStorage.getItem("toUpdate"))
+const userState = JSON.parse(localStorage.getItem("userState"));
+
+const updatePetsProfile = localStorage.getItem("updatePetsProfile")
+  ? JSON.parse(localStorage.getItem("updatePetsProfile"))
   : false;
+
+if (userState) {
+  petsProfileExists = userState.isPetsProfileCreated;
+}
 
 const petSlice = createSlice({
   name: "pet",
   initialState: {
     petsInfo: null,
-    isCreated,
-    toUpdate,
+    petsProfileExists,
+    updatePetsProfile,
   },
 
   reducers: {
     createProfile(state, action) {
-      state.isCreated = action.payload.isCreated;
+      state.petsProfileExists = action.payload.petsProfileExists;
     },
 
     getProfile(state, action) {
@@ -39,13 +39,13 @@ const petSlice = createSlice({
       };
     },
 
-    update(state, action) {
-      state.toUpdate = action.payload.message;
+    updatePetsProfile(state, action) {
+      state.updatePetsProfile = action.payload.updatePetsProfile;
     },
 
     deleteProfile(state, action) {
       state.petsInfo = action.payload.petsInfo;
-      state.isCreated = action.payload.isCreated;
+      state.petsProfileExists = action.payload.petsProfileExists;
     },
   },
 });

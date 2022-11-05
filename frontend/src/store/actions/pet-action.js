@@ -5,19 +5,19 @@ import { uiActions } from "../slices/ui-slice";
 
 const refreshToken = async () => {
   try {
-    const { refreshToken } = JSON.parse(localStorage.getItem("user"));
+    const { refreshToken } = JSON.parse(localStorage.getItem("userState"));
 
     const response = await axios.post("http://localhost:4000/api/refresh", {
       token: refreshToken,
     });
     const { data } = response;
 
-    const user = JSON.parse(localStorage.getItem("user"));
+    const userState = JSON.parse(localStorage.getItem("userState"));
 
-    user.accessToken = data.accessToken;
-    user.refreshToken = data.refreshToken;
+    userState.accessToken = data.accessToken;
+    userState.refreshToken = data.refreshToken;
 
-    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("userState", JSON.stringify(userState));
     return data;
   } catch (error) {
     console.error(error);
@@ -29,7 +29,7 @@ const axiosJWT = axios.create();
 axiosJWT.interceptors.request.use(
   async (config) => {
     const currentDate = new Date();
-    const { accessToken } = JSON.parse(localStorage.getItem("user"));
+    const { accessToken } = JSON.parse(localStorage.getItem("userState"));
     const decodedToken = jwt_decode(accessToken);
 
     if (decodedToken.exp * 1000 < currentDate.getTime()) {
@@ -46,10 +46,12 @@ axiosJWT.interceptors.request.use(
 
 export const createPetsProfile = (petsInfo) => {
   return async (dispatch) => {
-    dispatch(uiActions.request());
+    dispatch(uiActions.request({ loading: true, type: "general" }));
 
     const createProfile = async () => {
-      const { accessToken: token } = JSON.parse(localStorage.getItem("user"));
+      const { accessToken: token } = JSON.parse(
+        localStorage.getItem("userState")
+      );
 
       const response = await axiosJWT.post(
         "http://localhost:4000/api/pet/createProfile",
@@ -67,41 +69,43 @@ export const createPetsProfile = (petsInfo) => {
       }
 
       const {
-        data: { isCreated },
+        data: { isPetsProfileCreated },
       } = response;
 
-      return isCreated;
+      return isPetsProfileCreated;
     };
 
     try {
-      const isCreated = await createProfile();
+      const isPetsProfileCreated = await createProfile();
 
-      if (isCreated) {
+      if (isPetsProfileCreated) {
         dispatch(
           petActions.createProfile({
-            isCreated,
+            petsProfileExists: isPetsProfileCreated,
           })
         );
       }
 
-      dispatch(uiActions.success());
+      dispatch(uiActions.success({ loading: false, type: "general" }));
 
-      const user = JSON.parse(localStorage.getItem("user"));
+      const userState = JSON.parse(localStorage.getItem("userState"));
 
-      user.isPetsProfileCreated = isCreated;
+      userState.isPetsProfileCreated = isPetsProfileCreated;
 
-      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("userState", JSON.stringify(userState));
     } catch (error) {
-      dispatch(uiActions.failure({ error: error.message }));
+      dispatch(uiActions.failure({ error: error.message, type: "general" }));
     }
   };
 };
 
 export const getPetsProfile = (path) => {
   return async (dispatch) => {
-    dispatch(uiActions.request());
+    dispatch(uiActions.request({ loading: true, type: "general" }));
     const getProfile = async () => {
-      const { accessToken: token } = JSON.parse(localStorage.getItem("user"));
+      const { accessToken: token } = JSON.parse(
+        localStorage.getItem("userState")
+      );
 
       const response = await axiosJWT.get(
         `http://localhost:4000/api/pet/${path}`,
@@ -135,26 +139,28 @@ export const getPetsProfile = (path) => {
           meter: petsInfo.meter,
         })
       );
-      dispatch(uiActions.success());
+      dispatch(uiActions.success({ loading: false, type: "general" }));
     } catch (error) {
-      dispatch(uiActions.failure({ error: error.message }));
+      dispatch(uiActions.failure({ error: error.message, type: "general" }));
     }
   };
 };
 
-export const toUpdate = () => {
+export const updatePet = () => {
   return (dispatch) => {
-    dispatch(petActions.update({ message: true }));
-    localStorage.setItem("toUpdate", JSON.stringify(true));
+    dispatch(petActions.updatePetsProfile({ updatePetsProfile: true }));
+    localStorage.setItem("updatePetsProfile", JSON.stringify(true));
   };
 };
 
 export const updatedPetsProfile = (updatedInfo) => {
   return async (dispatch) => {
-    dispatch(uiActions.request());
+    dispatch(uiActions.request({ loading: true, type: "general" }));
 
     const updateProfile = async () => {
-      const { accessToken: token } = JSON.parse(localStorage.getItem("user"));
+      const { accessToken: token } = JSON.parse(
+        localStorage.getItem("userState")
+      );
       const response = await axiosJWT.patch(
         "http://localhost:4000/api/pet/updateProfile",
         updatedInfo,
@@ -175,25 +181,27 @@ export const updatedPetsProfile = (updatedInfo) => {
     };
 
     try {
-      const message = await updateProfile();
+      const isProfileUpdated = await updateProfile();
 
-      if (message) {
-        dispatch(uiActions.success());
-        dispatch(petActions.update({ message: false }));
-        localStorage.removeItem("toUpdate");
+      if (isProfileUpdated) {
+        dispatch(uiActions.success({ loading: false, type: "general" }));
+        dispatch(petActions.updatePetsProfile({ updatePetsProfile: false }));
+        localStorage.removeItem("updatePetsProfile");
       }
     } catch (error) {
-      dispatch(uiActions.failure({ error: error.message }));
+      dispatch(uiActions.failure({ error: error.message, type: "general" }));
     }
   };
 };
 
 export const deletePetsProfile = () => {
   return async (dispatch) => {
-    dispatch(uiActions.request());
+    dispatch(uiActions.request({ loading: true, type: "general" }));
 
     const deleteProfile = async () => {
-      const { accessToken: token } = JSON.parse(localStorage.getItem("user"));
+      const { accessToken: token } = JSON.parse(
+        localStorage.getItem("userState")
+      );
 
       const response = await axiosJWT.delete(
         "http://localhost:4000/api/pet/deleteProfile",
@@ -214,19 +222,22 @@ export const deletePetsProfile = () => {
     };
 
     try {
-      const message = await deleteProfile();
+      const petsInfo = await deleteProfile();
 
-      if (message) {
-        dispatch(uiActions.success());
+      if (petsInfo) {
+        dispatch(uiActions.success({ loading: false, type: "general" }));
         dispatch(
           petActions.deleteProfile({
-            petsInfo: null,
-            isCreated: false,
+            petsInfo: petsInfo.petsInfo,
+            petsProfileExits: petsInfo.isPetsProfileCreated,
           })
         );
       }
+      const userState = JSON.parse(localStorage.getItem("userState"));
+      userState.isPetsProfileCreated = false;
+      localStorage.setItem("userState", JSON.stringify(userState));
     } catch (error) {
-      dispatch(uiActions.failure({ message: error.message }));
+      dispatch(uiActions.failure({ error: error.message, type: "general" }));
     }
   };
 };

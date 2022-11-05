@@ -1,5 +1,4 @@
 const asyncHandler = require("express-async-handler");
-const bcrypt = require("bcryptjs");
 
 const User = require("../models/userModel.js");
 const Pet = require("../models/petModel.js");
@@ -22,6 +21,7 @@ const registerUser = asyncHandler(async (req, res) => {
     name,
     email,
     password,
+    isUserRegistered: true,
   });
 
   const accessToken = generateAccessToken(user._id);
@@ -29,10 +29,11 @@ const registerUser = asyncHandler(async (req, res) => {
 
   if (user) {
     res.status(200).json({
-      id: user._id,
       accessToken,
       refreshToken,
-      isRegistered: true,
+      isUserRegistered: user.isUserRegistered,
+      isPetsProfileCreated: user.isPetsProfileCreated,
+      hasChartData: user.hasChartData,
     });
 
     const tokens = await Token.create({
@@ -60,11 +61,11 @@ const loginUser = asyncHandler(async (req, res) => {
 
   if (user && (await user.matchPassword(password))) {
     res.status(200).json({
-      id: user._id,
       accessToken,
       refreshToken,
-      isRegistered: true,
-      petsProfile: user.petsProfile,
+      isUserRegistered: user.isUserRegistered,
+      isPetsProfileCreated: user.isPetsProfileCreated,
+      hasChartData: user.hasChartData,
     });
 
     const tokens = await Token.create({
@@ -90,7 +91,11 @@ const logoutUser = asyncHandler(async (req, res) => {
 
     if (deleteToken) {
       res.status(200).json({
-        message: "logged out",
+        accessToken: null,
+        refreshToken: null,
+        isUserRegistered: false,
+        isPetsProfileCreated: false,
+        hasChartData: false,
       });
     }
   }
@@ -120,7 +125,7 @@ const updateUser = asyncHandler(async (req, res) => {
     await user.save();
 
     res.status(200).json({
-      message: "profile has been deleted",
+      message: "profile has been updated",
     });
   } else {
     res.status(410);
@@ -136,10 +141,16 @@ const deleteUserProfile = asyncHandler(async (req, res) => {
 
   if (user && pet && token && curve) {
     res.status(200).json({
-      message: "Profile has been deleted",
+      userInfo: null,
+      accessToken: null,
+      refreshToken: null,
+      isUserRegistered: false,
+      isPetsProfileCreated: false,
+      hasChartData: false,
     });
   } else {
-    console.log("Wrong");
+    res.status(410);
+    throw new Error("Something went wrong");
   }
 });
 

@@ -6,17 +6,17 @@ import { uiActions } from "../slices/ui-slice";
 
 const refreshToken = async () => {
   try {
-    const { refreshToken } = JSON.parse(localStorage.getItem("user"));
+    const { refreshToken } = JSON.parse(localStorage.getItem("userState"));
     const response = await axios.post("http://localhost:4000/api/refresh", {
       token: refreshToken,
     });
     const { data } = response;
-    const user = JSON.parse(localStorage.getItem("user"));
+    const userState = JSON.parse(localStorage.getItem("userState"));
 
-    user.accessToken = data.accessToken;
-    user.refreshToken = data.refreshToken;
+    userState.accessToken = data.accessToken;
+    userState.refreshToken = data.refreshToken;
 
-    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("userState", JSON.stringify(userState));
 
     return data;
   } catch (error) {
@@ -29,7 +29,7 @@ const axiosJWT = axios.create();
 axiosJWT.interceptors.request.use(
   async (config) => {
     const currentDate = new Date();
-    const { accessToken } = JSON.parse(localStorage.getItem("user"));
+    const { accessToken } = JSON.parse(localStorage.getItem("userState"));
     const decodedToken = jwt_decode(accessToken);
     if (decodedToken.exp * 1000 < currentDate.getTime()) {
       const data = await refreshToken();
@@ -44,7 +44,7 @@ axiosJWT.interceptors.request.use(
 
 export const registerUser = (userInfo) => {
   return async (dispatch) => {
-    dispatch(uiActions.request());
+    dispatch(uiActions.request({ loading: true, type: "general" }));
 
     const register = async () => {
       const response = await axios.post(
@@ -62,36 +62,38 @@ export const registerUser = (userInfo) => {
     };
 
     try {
-      const userData = await register();
+      const userState = await register();
 
       dispatch(
         userActions.registerUser({
-          accessToken: userData.accessToken,
-          refreshToken: userData.refreshToken,
-          isRegistered: userData.isRegistered,
-          isPetsProfileCreated: false,
+          accessToken: userState.accessToken,
+          refreshToken: userState.refreshToken,
+          isUserRegistered: userState.isUserRegistered,
+          isPetsProfileCreated: userState.isPetsProfileCreated,
+          hasChartData: userState.hasChartData,
         })
       );
 
-      dispatch(uiActions.success());
-
-      const user = {
-        accessToken: userData.accessToken,
-        refreshToken: userData.refreshToken,
-        isRegistered: userData.isRegistered,
-        isPetsProfileCreated: false,
+      const userStateObj = {
+        accessToken: userState.accessToken,
+        refreshToken: userState.refreshToken,
+        isUserRegistered: userState.isUserRegistered,
+        isPetsProfileCreated: userState.isPetsProfileCreated,
+        hasChartData: userState.hasChartData,
       };
 
-      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("userState", JSON.stringify(userStateObj));
+
+      dispatch(uiActions.success({ loading: false, type: "general" }));
     } catch (error) {
-      dispatch(uiActions.failure({ error: error.message }));
+      dispatch(uiActions.failure({ error: error.message, type: "general" }));
     }
   };
 };
 
 export const loginUser = (userInfo) => {
   return async (dispatch) => {
-    dispatch(uiActions.request());
+    dispatch(uiActions.request({ loading: true, type: "general" }));
 
     const login = async () => {
       const response = await axios.post(
@@ -110,84 +112,90 @@ export const loginUser = (userInfo) => {
     };
 
     try {
-      const userData = await login();
+      const userState = await login();
       dispatch(
         userActions.loginUser({
-          accessToken: userData.accessToken,
-          refreshToken: userData.refreshToken,
-          isRegistered: userData.isRegistered,
-          isPetsProfileCreated: userData.petsProfile,
+          accessToken: userState.accessToken,
+          refreshToken: userState.refreshToken,
+          isUserRegistered: userState.isUserRegistered,
+          isPetsProfileCreated: userState.isPetsProfileCreated,
+          hasChartData: userState.hasChartData,
         })
       );
 
-      dispatch(petActions.createProfile({ isCreated: userData.petsProfile }));
+      dispatch(
+        petActions.createProfile({
+          petsProfileExists: userState.isPetsProfileCreated,
+        })
+      );
 
-      const user = {
-        accessToken: userData.accessToken,
-        refreshToken: userData.refreshToken,
-        isRegistered: userData.isRegistered,
-        isPetsProfileCreated: userData.petsProfile,
+      const userStateObj = {
+        accessToken: userState.accessToken,
+        refreshToken: userState.refreshToken,
+        isUserRegistered: userState.isUserRegistered,
+        isPetsProfileCreated: userState.isPetsProfileCreated,
+        hasChartData: userState.hasChartData,
       };
 
-      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("userState", JSON.stringify(userStateObj));
 
-      dispatch(uiActions.success());
+      dispatch(uiActions.success({ loading: false, type: "general" }));
     } catch (error) {
-      dispatch(uiActions.failure({ error: error.message }));
+      dispatch(uiActions.failure({ error: error.message, type: "general" }));
     }
   };
 };
 
 export const logoutUser = () => {
   return async (dispatch) => {
-    dispatch(uiActions.request());
-
-    const { accessToken } = JSON.parse(localStorage.getItem("user"));
+    dispatch(uiActions.request({ loading: true, type: "general" }));
 
     const logout = async () => {
+      const { accessToken } = JSON.parse(localStorage.getItem("userState"));
       const response = await axios.post(
         "http://localhost:4000/api/user/logout",
         { accessToken },
         { headers: { "Content-type": "application/json" } }
       );
 
-      if (response.status === 200 && response.data.message.includes("out")) {
+      if (response.status === 200) {
         const { data } = response;
         return data;
       }
     };
 
     try {
-      const data = await logout();
-      if (data.message.includes("out")) {
-        dispatch(
-          userActions.logoutUser({
-            id: null,
-            accessToken: null,
-            refreshToken: null,
-            isRegistered: false,
-          })
-        );
-        dispatch(
-          petActions.deleteProfile({
-            petsInfo: null,
-          })
-        );
-        dispatch(uiActions.success());
-      }
+      const userState = await logout();
+      dispatch(
+        userActions.logoutUser({
+          accessToken: userState.accessToken,
+          refreshToken: userState.refreshToken,
+          isUserRegistered: userState.isUserRegistered,
+          isPetsProfileCreated: userState.isPetsProfileCreated,
+          hasChartData: userState.hasChartData,
+        })
+      );
+      dispatch(
+        petActions.deleteProfile({
+          petsInfo: null,
+        })
+      );
+      dispatch(uiActions.success({ loading: false, type: "general" }));
 
-      localStorage.removeItem("user");
+      localStorage.removeItem("userState");
     } catch (error) {
-      dispatch(uiActions.failure({ error: error.message }));
+      dispatch(uiActions.generalFailure({ error: error.message }));
     }
   };
 };
 
 export const getUser = () => {
   return async (dispatch) => {
+    dispatch(uiActions.request({ loading: true, type: "general" }));
     const get = async () => {
-      const { accessToken: token } = JSON.parse(localStorage.getItem("user"));
-
+      const { accessToken: token } = JSON.parse(
+        localStorage.getItem("userState")
+      );
       const response = await axiosJWT.get("http://localhost:4000/api/user", {
         headers: { authorization: `Bearer ${token}` },
       });
@@ -202,17 +210,24 @@ export const getUser = () => {
     };
 
     try {
-      const data = await get();
-      dispatch(userActions.getUser({ name: data.name, email: data.email }));
-    } catch (error) {}
+      const userInfo = await get();
+      dispatch(
+        userActions.getUser({ name: userInfo.name, email: userInfo.email })
+      );
+      dispatch(uiActions.success({ loading: false, type: "general" }));
+    } catch (error) {
+      dispatch(uiActions.failure({ error: error.message, type: "general" }));
+    }
   };
 };
 
 export const getUsersPassword = (password) => {
   return async (dispatch) => {
+    dispatch(uiActions.request({ loading: true, type: "password" }));
     const fetchPassword = async () => {
-      const { accessToken: token } = JSON.parse(localStorage.getItem("user"));
-
+      const { accessToken: token } = JSON.parse(
+        localStorage.getItem("userState")
+      );
       const response = await axiosJWT.post(
         "http://localhost:4000/api/user/password",
         { password },
@@ -235,22 +250,26 @@ export const getUsersPassword = (password) => {
     try {
       const data = await fetchPassword();
       dispatch(userActions.getPassword({ password: data.password }));
+      dispatch(uiActions.success({ loading: false, type: "password" }));
     } catch (error) {
-      console.error(error.message);
+      dispatch(uiActions.failure({ error: error.message, type: "password" }));
     }
   };
 };
 
 export const deletePassword = () => {
   return (dispatch) => {
-    dispatch(userActions.deletePassword({ delete: true }));
+    dispatch(userActions.deletePassword({ passwordDelete: true }));
   };
 };
 
 export const updateUser = (updatedUserInfo) => {
   return async (dispatch) => {
+    dispatch(uiActions.request({ loading: true, type: "general" }));
     const update = async () => {
-      const { accessToken: token } = JSON.parse(localStorage.getItem("user"));
+      const { accessToken: token } = JSON.parse(
+        localStorage.getItem("userState")
+      );
       const response = await axiosJWT.patch(
         "http://localhost:4000/api/user/update",
         updatedUserInfo,
@@ -271,17 +290,18 @@ export const updateUser = (updatedUserInfo) => {
     };
 
     try {
-      const message = await update();
-      if (message) {
-        dispatch(userActions.updateUser({ updated: true }));
+      const isUserInfoUpdated = await update();
+      if (isUserInfoUpdated) {
+        dispatch(userActions.updateUser({ updateProfile: true }));
+        dispatch(uiActions.success({ loading: false, type: "general" }));
       }
     } catch (error) {
-      dispatch(uiActions.failure({ error: error.message }));
+      dispatch(uiActions.failure({ error: error.message, type: "general" }));
     }
   };
 };
 
-export const updater = () => {
+export const updateUserProfile = () => {
   return (dispatch) => {
     dispatch(userActions.updateUser({ update: false }));
   };
@@ -289,8 +309,11 @@ export const updater = () => {
 
 export const deleteUser = () => {
   return async (dispatch) => {
+    dispatch(uiActions.request({ loading: true, type: "general" }));
     const deleteUser = async () => {
-      const { accessToken: token } = JSON.parse(localStorage.getItem("user"));
+      const { accessToken: token } = JSON.parse(
+        localStorage.getItem("userState")
+      );
       const response = await axiosJWT.delete(
         "http://localhost:4000/api/user/delete",
         {
@@ -310,25 +333,26 @@ export const deleteUser = () => {
     };
 
     try {
-      const message = await deleteUser();
+      const userState = await deleteUser();
 
-      if (message) {
+      if (userState) {
         dispatch(
           userActions.deleteUser({
-            userInfo: null,
+            userInfo: userState.userInfo,
             userData: {
-              accessToken: null,
-              refreshToken: null,
-              isRegistered: false,
-              isPetsProfileCreated: false,
+              accessToken: userState.accessToken,
+              refreshToken: userState.refreshToken,
+              isUserRegistered: userState.isUserRegistered,
+              isPetsProfileCreated: userState.isPetsProfileCreated,
+              hasChartData: userState.hasChartData,
             },
           })
         );
-
-        localStorage.removeItem("user");
+        dispatch(uiActions.success({ loading: false, type: "general" }));
+        localStorage.removeItem("userState");
       }
     } catch (error) {
-      console.log(error);
+      dispatch(uiActions.failure({ error: error.message, type: "general" }));
     }
   };
 };

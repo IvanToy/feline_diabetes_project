@@ -31,13 +31,13 @@ const createPetsProfile = asyncHandler(async (req, res) => {
 
   const user = await User.findById(req.user._id);
 
-  user.petsProfile = true;
+  user.isPetsProfileCreated = true;
 
   await user.save();
 
   if (pet) {
     res.status(200).json({
-      isCreated: true,
+      isPetsProfileCreated: user.isPetsProfileCreated,
     });
   } else {
     res.status(400);
@@ -77,7 +77,7 @@ const updatePetsProfile = asyncHandler(async (req, res) => {
 
   if (isUpdated) {
     res.status(200).json({
-      message: "profile has been updated",
+      isProfileUpdated: true,
     });
   } else {
     res.status(500);
@@ -89,13 +89,14 @@ const deletePetsProfile = asyncHandler(async (req, res) => {
   const isDeleted = await Pet.deleteOne({ userId: req.user._id });
   const user = await User.findById(req.user._id);
 
-  user.petsProfile = false;
+  user.isPetsProfileCreated = false;
 
   await user.save();
 
   if (isDeleted) {
     res.status(200).json({
-      message: "profile has been deleted",
+      petsInfo: null,
+      isProfileCreated: user.isPetsProfileCreated,
     });
   } else {
     res.status(410);

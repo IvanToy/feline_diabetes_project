@@ -1,13 +1,16 @@
 import React from "react";
-import { toUpdate, deletePetsProfile } from "../../store/actions/pet-action";
+import { updatePet, deletePetsProfile } from "../../store/actions/pet-action";
 import styles from "../../css/PetsProfile.module.css";
 import { useDispatch } from "react-redux";
 
 const PetsGeneralInfo = ({ pet }) => {
   const dispatch = useDispatch();
   const updateHandler = () => {
-    dispatch(toUpdate());
+    dispatch(updatePet());
   };
+
+  const [y1, m1, d1] = pet?.diagnosed.split("-");
+  const [y2, m2, d2] = pet?.dosingDate.split("-");
 
   const deleteHandler = () => {
     dispatch(deletePetsProfile());
@@ -45,7 +48,7 @@ const PetsGeneralInfo = ({ pet }) => {
           <ul>
             <li className={styles.ulItem}>
               <span className={styles.itemSpan}>Diagnosed: </span>
-              {pet?.diagnosed}
+              {pet?.diagnosed && `${d1}/${m1}/${y1}`}
             </li>
             <li className={styles.ulItem}>
               <span className={styles.itemSpan}>Dosing Method: </span>
@@ -53,7 +56,7 @@ const PetsGeneralInfo = ({ pet }) => {
             </li>
             <li className={styles.ulItem}>
               <span className={styles.itemSpan}>Dosing Date: </span>
-              {pet?.dosingDate}
+              {pet?.dosingDate && `${d2}/${m2}/${y2}`}
             </li>
             <li className={styles.ulItem}>
               <span className={styles.itemSpan}>current Insulin: </span>

@@ -2,22 +2,23 @@ import axios from "axios";
 import jwt_decode from "jwt-decode";
 import { curveActions } from "../slices/curve-slice";
 import { uiActions } from "../slices/ui-slice";
+import { userActions } from "../slices/user-slice";
 
 const refreshToken = async () => {
   try {
-    const { refreshToken } = JSON.parse(localStorage.getItem("user"));
+    const { refreshToken } = JSON.parse(localStorage.getItem("userState"));
 
     const response = await axios.post("http://localhost:4000/api/refresh", {
       token: refreshToken,
     });
     const { data } = response;
 
-    const user = JSON.parse(localStorage.getItem("user"));
+    const userState = JSON.parse(localStorage.getItem("userState"));
 
-    user.accessToken = data.accessToken;
-    user.refreshToken = data.refreshToken;
+    userState.accessToken = data.accessToken;
+    userState.refreshToken = data.refreshToken;
 
-    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("userState", JSON.stringify(userState));
     return data;
   } catch (error) {
     console.error(error);
@@ -29,7 +30,7 @@ const axiosJWT = axios.create();
 axiosJWT.interceptors.request.use(
   async (config) => {
     const currentDate = new Date();
-    const { accessToken } = JSON.parse(localStorage.getItem("user"));
+    const { accessToken } = JSON.parse(localStorage.getItem("userState"));
     const decodedToken = jwt_decode(accessToken);
 
     if (decodedToken.exp * 1000 < currentDate.getTime()) {
@@ -46,9 +47,10 @@ axiosJWT.interceptors.request.use(
 
 export const addCurve = (glucoseInfo) => {
   return async (dispatch) => {
-    dispatch(uiActions.requestChart());
     const add = async () => {
-      const { accessToken: token } = JSON.parse(localStorage.getItem("user"));
+      const { accessToken: token } = JSON.parse(
+        localStorage.getItem("userState")
+      );
 
       const response = await axiosJWT.post(
         "http://localhost:4000/api/curve",
@@ -71,20 +73,33 @@ export const addCurve = (glucoseInfo) => {
     };
 
     try {
-      const message = await add();
-      if (message) {
-        dispatch(uiActions.successChart());
+      const charDataState = await add();
+
+      if (charDataState.hasChartData) {
+        dispatch(
+          userActions.setChartData({ hasChartData: charDataState.hasChartData })
+        );
+        dispatch(curveActions.cleanCurve({ curveInfo: null }));
+
+        const userState = JSON.parse(localStorage.getItem("userState"));
+
+        userState.hasChartData = charDataState.hasChartData;
+
+        localStorage.setItem("userState", JSON.stringify(userState));
       }
     } catch (error) {
-      dispatch(uiActions.failure({ error: error.message }));
+      dispatch(uiActions.failure({ error: error.message, type: "chart" }));
     }
   };
 };
 
 export const getCurve = (id) => {
   return async (dispatch) => {
+    dispatch(uiActions.request({ loading: true, type: "chart" }));
     const get = async () => {
-      const { accessToken: token } = JSON.parse(localStorage.getItem("user"));
+      const { accessToken: token } = JSON.parse(
+        localStorage.getItem("userState")
+      );
 
       const response = await axiosJWT.get(
         `http://localhost:4000/api/curve/${id}`,
@@ -101,13 +116,14 @@ export const getCurve = (id) => {
     };
 
     try {
-      const data = await get();
+      const chartData = await get();
 
-      if (data) {
-        dispatch(curveActions.curveData({ data }));
+      if (chartData) {
+        dispatch(curveActions.getCurve({ chartData }));
+        dispatch(uiActions.success({ loading: false, type: "chart" }));
       }
     } catch (error) {
-      dispatch(uiActions.failure({ error: error.message }));
+      dispatch(uiActions.failure({ error: error.message, type: "chart" }));
     }
   };
 };

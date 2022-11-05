@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Navigate, Outlet, useNavigate } from "react-router-dom";
+import React from "react";
+import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const HomePage = () => {
-  const { isRegistered } = useSelector((state) => state.user.userData);
+  const { isUserRegistered } = useSelector((state) => state.user.userState);
 
-  return isRegistered ? <Outlet /> : <Navigate to="/register" />;
+  return isUserRegistered ? <Outlet /> : <Navigate to="/register" />;
 };
 
 export default HomePage;

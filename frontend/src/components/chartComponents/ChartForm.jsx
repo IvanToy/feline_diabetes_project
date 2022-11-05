@@ -18,6 +18,11 @@ const PetsChartForm = () => {
     e.preventDefault();
 
     dispatch(addCurve(glucoseInfo));
+
+    glucoseInfo.date = "";
+    glucoseInfo.time = "";
+    glucoseInfo.glucose = 0;
+    glucoseInfo.units = 0;
   };
 
   const changeHandler = (e) => {

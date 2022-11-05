@@ -7,7 +7,7 @@ const curveSlice = createSlice({
   },
 
   reducers: {
-    curveData(state, action) {
+    getCurve(state, action) {
       const curve = {
         date: "",
         units: null,
@@ -16,30 +16,31 @@ const curveSlice = createSlice({
         curveLength: null,
       };
 
-      const data = action.payload.data;
+      const chartData = action.payload.chartData;
 
-      if (data.data === null) {
-        state.curveInfo = null;
-      } else {
-        curve.id = +data.id;
-        curve.curveLength = data.curveLength;
+      curve.id = +chartData.id;
+      curve.curveLength = chartData.curveLength;
 
-        for (let key in data.curve) {
-          if (key === "date")
-            curve.date = new Date(data.curve[key]).toISOString().split("T")[0];
-          if (key === "units")
-            data.curve[key].amUnits
-              ? (curve.units = data.curve[key].amUnits)
-              : (curve.units = data.curve[key].pmUnits);
+      for (let key in chartData.curve) {
+        if (key === "date")
+          curve.date = new Date(chartData.curve[key])
+            .toISOString()
+            .split("T")[0];
+        if (key === "units")
+          chartData.curve[key].amUnits
+            ? (curve.units = chartData.curve[key].amUnits)
+            : (curve.units = chartData.curve[key].pmUnits);
 
-          if (key === "glucoseLevels") {
-            for (let obj of data.curve[key]) {
-              curve.levels.push(obj);
-            }
+        if (key === "glucoseLevels") {
+          for (let obj of chartData.curve[key]) {
+            curve.levels.push(obj);
           }
         }
-        state.curveInfo = curve;
       }
+      state.curveInfo = curve;
+    },
+    cleanCurve(state, action) {
+      state.curveInfo = action.payload.curveInfo;
     },
   },
 });

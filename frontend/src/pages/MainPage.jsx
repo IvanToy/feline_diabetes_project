@@ -4,9 +4,15 @@ import PetsForm from "../components/petsComponents/PetsForm";
 import PetsProfile from "../components/petsComponents/PetsProfile";
 
 const MainPage = () => {
-  const { isCreated, toUpdate } = useSelector((state) => state.pet);
+  const { petsProfileExists, updatePetsProfile } = useSelector(
+    (state) => state.pet
+  );
 
-  return <>{isCreated && !toUpdate ? <PetsProfile /> : <PetsForm />}</>;
+  return (
+    <>
+      {petsProfileExists && !updatePetsProfile ? <PetsProfile /> : <PetsForm />}
+    </>
+  );
 };
 
 export default MainPage;

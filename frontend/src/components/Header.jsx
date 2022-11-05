@@ -8,13 +8,13 @@ import styles from "../css/Header.module.css";
 const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isRegistered } = useSelector((state) => state.user.userData);
+  const { isUserRegistered } = useSelector((state) => state.user.userState);
 
   useEffect(() => {
-    if (isRegistered === false) {
+    if (!isUserRegistered) {
       navigate("/", { replace: true });
     }
-  }, [isRegistered]);
+  }, [isUserRegistered]);
 
   const clickHandler = () => {
     dispatch(logoutUser());
@@ -27,7 +27,7 @@ const Header = () => {
           Feline Diabetes Tracker
         </Link>
       </h3>
-      {isRegistered && (
+      {isUserRegistered && (
         <div className={styles.menu}>
           <ul className={styles.list}>
             <li className={styles.listItem}>

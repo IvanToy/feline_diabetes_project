@@ -3,26 +3,63 @@ import { createSlice } from "@reduxjs/toolkit";
 const uiSlice = createSlice({
   name: "ui",
   initialState: {
-    loading: false,
-    loadingChart: false,
-    error: null,
+    generalUI: {
+      loading: false,
+      error: null,
+    },
+    chartUI: {
+      loading: false,
+      error: null,
+    },
+    passwordUI: {
+      loading: false,
+      error: null,
+    },
   },
   reducers: {
-    request(state) {
-      state.loading = !state.loading;
+    request(state, action) {
+      if (action.payload.type === "general") {
+        state.generalUI.loading = action.payload.loading;
+      }
+
+      if (action.payload.type === "chart") {
+        state.chartUI.loading = action.payload.loading;
+      }
+
+      if (action.payload.type === "password") {
+        state.passwordUI.loading = action.payload.loading;
+      }
     },
-    requestChart(state) {
-      state.loadingChart = !state.loadingChart;
+
+    success(state, action) {
+      if (action.payload.type === "general") {
+        state.generalUI.loading = action.payload.loading;
+      }
+
+      if (action.payload.type === "chart") {
+        state.chartUI.loading = action.payload.loading;
+      }
+
+      if (action.payload.type === "password") {
+        state.passwordUI.loading = action.payload.loading;
+      }
     },
-    success(state) {
-      state.loading = !state.loading;
-    },
-    successChart(state) {
-      state.loadingChart = !state.loadingChart;
-    },
+
     failure(state, action) {
-      state.loading = !state.loading;
-      state.error = action.payload.error;
+      if (action.payload.type === "general") {
+        state.generalUI.loading = action.payload.loading;
+        state.generalUI.error = action.payload.error;
+      }
+
+      if (action.type === "chart") {
+        state.chartUI.loading = action.payload.loading;
+        state.chartUI.error = action.payload.error;
+      }
+
+      if (action.type === "password") {
+        state.passwordUI.loading = action.payload.loading;
+        state.passwordUI.error = action.payload.error;
+      }
     },
   },
 });

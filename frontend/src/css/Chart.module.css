@@ -36,6 +36,17 @@
   align-self: center;
   cursor: pointer;
   position: relative;
+  border: none;
+  background-color: #f5f5f5;
+}
+
+.arrow:hover {
+  color: #847d7d;
+}
+
+.arrow:disabled {
+  cursor: not-allowed;
+  color: #ccc4c4;
 }
 
 .arrow:nth-child(1) {
@@ -64,4 +75,11 @@
 .arrow:nth-child(1) .arrowTip {
   transform: rotate(-180deg);
   top: 6.9rem;
+}
+
+.loader {
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

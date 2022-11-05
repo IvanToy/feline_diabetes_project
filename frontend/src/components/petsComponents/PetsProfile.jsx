@@ -5,8 +5,10 @@ import Loader from "../UI/Loader";
 import { useDispatch, useSelector } from "react-redux";
 import { getPetsProfile } from "../../store/actions/pet-action";
 
+import styles from "../../css/PetsProfile.module.css";
+
 const PetsProfile = () => {
-  const { loading, error } = useSelector((state) => state.ui);
+  const { loading, error } = useSelector((state) => state.ui.generalUI);
   const petsInfo = useSelector((state) => state.pet.petsInfo);
   const dispatch = useDispatch();
 
@@ -17,7 +19,11 @@ const PetsProfile = () => {
   let content;
 
   if (loading && !petsInfo) {
-    content = <Loader />;
+    content = (
+      <div className={styles.loader}>
+        <Loader />
+      </div>
+    );
   } else if (!loading && petsInfo) {
     content = (
       <>

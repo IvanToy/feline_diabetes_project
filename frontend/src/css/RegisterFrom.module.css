@@ -10,6 +10,14 @@
   max-width: 60rem;
 }
 
+.loader {
+  margin: 0 auto;
+  display: flex;
+  height: 50vh;
+  justify-content: center;
+  align-items: center;
+}
+
 .registerFrom {
   display: flex;
   flex-direction: column;
@@ -30,6 +38,20 @@
   outline-color: #d1cece;
 }
 
+.invalid {
+  background-color: #f5f5f5;
+  border: solid;
+  border-color: #b43b3b;
+  border-radius: 5px;
+  padding: 1rem;
+  margin: 1rem;
+  width: 100%;
+}
+
+.invalid:focus {
+  outline: none;
+}
+
 .registerButton {
   background-color: #0096ff;
   padding: 1rem;
@@ -45,6 +67,11 @@
   background-color: #0087e7;
 }
 
+.registerButton:disabled {
+  cursor: not-allowed;
+  background-color: #58b4f6;
+}
+
 .p {
   padding: 1rem;
 }
@@ -54,4 +81,13 @@
   color: #bab8b8;
   text-transform: uppercase;
   margin-left: 0.3rem;
+}
+
+.errorText {
+  color: #b43b3b;
+  text-align: center;
+}
+
+h3 {
+  margin-top: 3rem;
 }

@@ -1,56 +1,57 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const isUser = localStorage.getItem("user") ? true : false;
+let accessToken = null;
+let refreshToken = null;
+let isUserRegistered = false;
+let isPetsProfileCreated = false;
+let hasChartData = false;
 
-let accessToken, refreshToken, isRegistered, isPetsProfileCreated;
+const userState = JSON.parse(localStorage.getItem("userState"));
 
-if (isUser) {
-  const {
-    accessToken: tokenA,
-    refreshToken: tokenR,
-    isRegistered: registered,
-    isPetsProfileCreated: isCreated,
-  } = JSON.parse(localStorage.getItem("user"));
-  accessToken = tokenA;
-  refreshToken = tokenR;
-  isRegistered = registered;
-  isPetsProfileCreated = isCreated;
-} else {
-  accessToken = null;
-  refreshToken = null;
-  isRegistered = false;
+if (userState) {
+  accessToken = userState.accessToken;
+  refreshToken = userState.refreshToken;
+  isUserRegistered = userState.isUserRegistered;
+  isPetsProfileCreated = userState.isPetsProfileCreated;
+  hasChartData = userState.hasChartData;
 }
 
 const userSlice = createSlice({
   name: "user",
   initialState: {
-    userData: {
+    userState: {
       accessToken,
       refreshToken,
-      isRegistered,
+      isUserRegistered,
       isPetsProfileCreated,
+      hasChartData,
     },
     userInfo: null,
-    updated: false,
+    updateProfile: false,
   },
 
   reducers: {
     registerUser(state, action) {
-      state.userData.accessToken = action.payload.accessToken;
-      state.userData.refreshToken = action.payload.refreshToken;
-      state.userData.isRegistered = action.payload.isRegistered;
-      state.userData.isPetsProfileCreated = action.payload.isPetsProfileCreated;
+      state.userState.accessToken = action.payload.accessToken;
+      state.userState.refreshToken = action.payload.refreshToken;
+      state.userState.isUserRegistered = action.payload.isUserRegistered;
+      state.userState.isPetsProfileCreated =
+        action.payload.isPetsProfileCreated;
+
+      state.userState.hasChartData = action.payload.hasCharData;
     },
     loginUser(state, action) {
-      state.userData.accessToken = action.payload.accessToken;
-      state.userData.refreshToken = action.payload.refreshToken;
-      state.userData.isRegistered = action.payload.isRegistered;
+      state.userState.accessToken = action.payload.accessToken;
+      state.userState.refreshToken = action.payload.refreshToken;
+      state.userState.isUserRegistered = action.payload.isUserRegistered;
+      state.userState.hasChartData = action.payload.hasChartData;
     },
 
     logoutUser(state, action) {
-      state.userData.accessToken = action.payload.accessToken;
-      state.userData.refreshToken = action.payload.refreshToken;
-      state.userData.isRegistered = action.payload.isRegistered;
+      state.userState.accessToken = action.payload.accessToken;
+      state.userState.refreshToken = action.payload.refreshToken;
+      state.userState.isUserRegistered = action.payload.isUserRegistered;
+      state.userState.hasChartData = action.payload.hasChartData;
     },
     getUser(state, action) {
       const user = {
@@ -67,22 +68,26 @@ const userSlice = createSlice({
       state.userInfo["password"] = action.payload.password;
     },
     deletePassword(state, action) {
-      const toDelete = action.payload.delete;
+      const passwordDelete = action.payload.passwordDelete;
 
-      if (toDelete) {
-        delete state.userInfo.password;
+      if (passwordDelete) {
+        delete state.userInfo.passwordDelete;
       }
     },
     updateUser(state, action) {
-      state.updated = action.payload.updated;
+      state.updateProfile = action.payload.updateProfile;
     },
     deleteUser(state, action) {
       state.userInfo = action.payload.userInfo;
-      state.userData.accessToken = action.payload.userData.accessToken;
-      state.userData.refreshToken = action.payload.userData.refreshToken;
-      state.userData.isRegistered = action.payload.userData.isRegistered;
-      state.userData.isPetsProfileCreated =
+      state.userState.accessToken = action.payload.userData.accessToken;
+      state.userState.refreshToken = action.payload.userData.refreshToken;
+      state.userState.isUserRegistered = action.payload.userData.isRegistered;
+      state.userState.isPetsProfileCreated =
         action.payload.userData.isPetsProfileCreated;
+      state.userState.hasChartData = action.payload.hasCharData;
+    },
+    setChartData(state, action) {
+      state.userState.hasChartData = action.payload.hasChartData;
     },
   },
 });

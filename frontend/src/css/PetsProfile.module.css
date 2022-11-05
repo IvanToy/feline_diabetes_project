@@ -83,3 +83,11 @@
   color: #e1dada;
   margin: 0.5rem;
 }
+
+.loader {
+  margin: 0 auto;
+  display: flex;
+  height: 50vh;
+  justify-content: center;
+  align-items: center;
+}

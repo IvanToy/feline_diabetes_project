@@ -6,7 +6,9 @@ const userSchema = mongoose.Schema(
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    petsProfile: { type: Boolean, default: false },
+    isUserRegistered: { type: Boolean, default: false },
+    isPetsProfileCreated: { type: Boolean, default: false },
+    hasChartData: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

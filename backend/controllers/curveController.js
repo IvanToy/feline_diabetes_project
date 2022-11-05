@@ -2,7 +2,7 @@ const asyncHandler = require("express-async-handler");
 const checkTime = require("../utils/checkTime.js");
 const Curve = require("../models/curveModel.js");
 const Pet = require("../models/petModel.js");
-const { json, response } = require("express");
+const User = require("../models/userModel.js");
 
 const addCurve = asyncHandler(async (req, res) => {
   const { date, time, glucose, units } = req.body;
@@ -32,11 +32,18 @@ const addCurve = asyncHandler(async (req, res) => {
 
     curveCreated.curvesLength = curveCreated.curves.length;
 
+    const user = await User.findById(req.user._id);
+
+    user.hasChartData = true;
+
+    user.save();
+
     if (curveCreated) {
       res.status(200).json({
-        message: "curve has been added",
+        hasChartData: user.hasChartData,
       });
     } else {
+      res.status(400);
       throw new Error("Something went wrong. Please try again.");
     }
   } else {
@@ -67,7 +74,7 @@ const addCurve = asyncHandler(async (req, res) => {
     isCurve.save();
 
     res.status(200).json({
-      message: "curve has been added",
+      hasChartData: true,
     });
   }
 });
@@ -92,9 +99,8 @@ const getCurve = asyncHandler(async (req, res) => {
       });
     }
   } else {
-    res.json({
-      data: null,
-    });
+    res.status(400);
+    throw new Error("Something went wrong. Please try again.");
   }
 });
 

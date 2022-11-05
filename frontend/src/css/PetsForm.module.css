@@ -5,6 +5,14 @@
   background-color: #007dd6;
 }
 
+.loader {
+  margin: 0 auto;
+  display: flex;
+  height: 50vh;
+  justify-content: center;
+  align-items: center;
+}
+
 .title {
   color: #ffffff;
   text-align: center;
@@ -69,4 +77,13 @@
 }
 .dosingMethodInputs {
   display: flex;
+}
+
+.errorText {
+  color: #b43b3b;
+  text-align: center;
+}
+
+h3 {
+  margin-top: 3rem;
 }
